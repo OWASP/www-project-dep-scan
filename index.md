@@ -11,7 +11,7 @@ pitch: Fully open-source security audit based on known vulnerabilities and advis
 
 # Introduction
 
-dep-scan is a fully open-source security audit tool based on known vulnerabilities, advisories, and license limitations for project dependencies. Both local repositories and container images are supported as the input, and the tool is ideal for CI environments with built-in build-breaker logic.
+OWASP dep-scan is a fully open-source security audit tool based on known vulnerabilities, advisories, and license limitations for project dependencies. Both local repositories and container images are supported as the input, and the tool is ideal for CI environments with built-in build-breaker logic.
 
 ![Depscan logo](dep-scan.png)
 
