@@ -3,7 +3,7 @@
 layout: col-sidebar
 title: OWASP dep-scan
 tags: security-audit, sca, dependency-analysis, risk-audit, sbom, devsecops
-level: 3.5
+level: 2
 type: tool
 pitch: Fully open-source security audit based on known vulnerabilities and advisories for project dependencies.
 
