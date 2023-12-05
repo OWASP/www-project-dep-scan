@@ -13,7 +13,7 @@ Welcome to the home of the OWASP dep-scan project! dep-scan is a fully open-sour
 
 ## External Resources
 
-- [GitHub](https://github.com/AppThreat/dep-scan)
-- [Downloads](https://github.com/AppThreat/dep-scan/releases)
-- [Container Image](https://github.com/orgs/AppThreat/packages/container/package/dep-scan)
-- [Issues](https://github.com/AppThreat/dep-scan/issues)
+- [GitHub](https://github.com/owasp-dep-scan/dep-scan)
+- [Downloads](https://github.com/owasp-dep-scan/dep-scan/releases)
+- [Container Image](https://github.com/owasp-dep-scan/dep-scan/pkgs/container/depscan/154272305?tag=latest)
+- [Issues](https://github.com/owasp-dep-scan/dep-scan/issues)

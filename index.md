@@ -26,9 +26,7 @@ OWASP dep-scan is a next-generation security and risk audit tool based on known 
 
 ![Reachable Flows](assets/images/depscan-flows.png)
 
-![Dependency Tree with Insights](assets/images/tree1.jpg)
-
-![Dependency Tree with Insights](assets/images/prioritization.jpg)
+![CVE Insights](assets/images/depscan-blog/6.jpg)
 
 ### Vulnerability Data sources
 
