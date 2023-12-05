@@ -9,7 +9,7 @@ MIT License
 
 ## Overview
 
-Welcome to the home of the OWASP dep-scan project! dep-scan is a fully open-source security audit tool based on known vulnerabilities, advisories, and license limitations for project dependencies. Both local repositories and container images are supported as the input, and the tool is ideal for CI environments with built-in build-breaker logic.
+Welcome to the home of the OWASP dep-scan project! dep-scan is a next-generation security and risk audit tool based on known vulnerabilities, advisories, and license limitations for project dependencies. Both local repositories and container images are supported as the input, and the tool is ideal for integration with ASPM/VM platforms and in CI environments.
 
 ## External Resources
 
