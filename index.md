@@ -5,24 +5,29 @@ title: OWASP dep-scan
 tags: security-audit, sca, dependency-analysis, risk-audit, sbom, devsecops
 level: 2
 type: tool
-pitch: Fully open-source security audit based on known vulnerabilities and advisories for project dependencies.
+pitch: Next-generation security and risk audit tool based on known vulnerabilities, advisories, and license limitations for project dependencies.
 
 ---
 
 # Introduction
 
-OWASP dep-scan is a fully open-source security audit tool based on known vulnerabilities, advisories, and license limitations for project dependencies. Both local repositories and container images are supported as the input, and the tool is ideal for CI environments with built-in build-breaker logic.
+OWASP dep-scan is a next-generation security and risk audit tool based on known vulnerabilities, advisories, and license limitations for project dependencies. Both local repositories and container images are supported as the input, and the tool is ideal for integration with ASPM/VM platforms and in CI environments.
 
 ![Depscan logo](dep-scan.png)
 
 ## Features
 
 - Scan most application code - local repos, Linux container images, Kubernetes manifests, and OS - to identify known CVEs with prioritization
+- Perform advanced reachability analysis for multiple languages (See reachability analysis)
 - Package vulnerability scanning is performed locally and is quite fast. No server is used!
-- Generate Software Bill-of-Materials (SBoM) with Vulnerability Exploitability Exchange (VEX) information
+- Generate Software Bill-of-Materials (SBOM) with Vulnerability Disclosure Report (VDR) information
+- Generate a Common Security Advisory Framework (CSAF) 2.0 VEX document (check out the [CSAF Readme](contrib/CSAF_README.md))
 - Perform deep packages risk audit for dependency confusion attacks and maintenance risks (See risk audit)
 
+![Reachable Flows](assets/images/depscan-flows.png)
+
 ![Dependency Tree with Insights](assets/images/tree1.jpg)
+
 ![Dependency Tree with Insights](assets/images/prioritization.jpg)
 
 ### Vulnerability Data sources
@@ -91,7 +96,7 @@ curl -LO https://github.com/appthreat/depscan-bin/releases/latest/download/depsc
 dep-scan and cdxgen could be run in server mode. Use the included docker compose file to get started.
 
 ```bash
-git clone https://github.com/AppThreat/dep-scan
+git clone https://github.com/owasp-dep-scan/dep-scan
 docker compose up
 ```
 
@@ -106,42 +111,39 @@ In server mode, use `/cache` endpoint to cache the vulnerability database.
 curl http://0.0.0.0:7070/cache
 ```
 
-Cache all vulnerabilities including os.
-
-```bash
-# This would take over 5 minutes
-curl http://0.0.0.0:7070/cache?os=true
-```
-
 Use the `/scan` endpoint to perform scans.
 
+> [!NOTE]
+> The `type` parameter is mandatory in server mode.
+
+* Scanning a local directory.
 ```bash
 curl --json '{"path": "/tmp/vulnerable-aws-koa-app", "type": "js"}' http://0.0.0.0:7070/scan
 ```
 
+* Scanning an SBOM file (present locally).
 ```bash
-curl --json '{"url": "https://github.com/HooliCorp/vulnerable-aws-koa-app", "type": "js"}' http://0.0.0.0:7070/scan -o app.vex.json
+curl --json '{"path": "/tmp/vulnerable-aws-koa-app/sbom_file.json", "type": "js"}' http://0.0.0.0:7070/scan
 ```
 
-### Use with ShiftLeft Scan
-
-dep-scan is integrated with [scan](https://github.com/ShiftLeftSecurity/sast-scan), a free and open-source SAST tool. To enable this feature simply pass `depscan` to the `--type` argument. [Refer](https://slscan.io) to the scan documentation for more information.
-
-```yaml
----
---type python,depscan,credscan
+* Scanning a GitHub repo.
+```bash
+curl --json '{"url": "https://github.com/HooliCorp/vulnerable-aws-koa-app", "type": "js"}' http://0.0.0.0:7070/scan -o app.vdr.json
 ```
 
-This approach should work for all CI environments supported by scan.
+* Uploading an SBOM file and generating results based on it.
+```bash
+curl -X POST -H 'Content-Type: multipart/form-data' -F 'file=@/tmp/app/sbom_file.json' http://0.0.0.0:7070/scan?type=js
+```
 
 ### Scanning projects locally (Python version)
 
 ```bash
 sudo npm install -g @cyclonedx/cdxgen
-pip install appthreat-depscan
+pip install owasp-depscan
 ```
 
-This would install two commands called `cdxgen` and `scan`.
+This would install two commands called `cdxgen` and `depscan`.
 
 You can invoke the scan command directly with the various options.
 
@@ -150,28 +152,36 @@ cd <project to scan>
 depscan --src $PWD --reports-dir $PWD/reports
 ```
 
-Full list of options are below:
+The full list of options is below:
 
 ```bash
-usage: depscan [-h] [--no-banner] [--cache] [--cache-os] [--sync] [--suggest] [--risk-audit] [--private-ns PRIVATE_NS] [-t PROJECT_TYPE] [--bom BOM] -i SRC_DIR
-              [--reports-dir REPORTS_DIR] [--no-error] [--deep]
+usage: cli.py [-h] [--no-banner] [--cache] [--csaf] [--sync] [--profile {appsec,research,operational,threat-modeling,license-compliance,generic}] [--no-suggest] [--risk-audit] [--private-ns PRIVATE_NS] [-t PROJECT_TYPE] [--bom BOM] [-i SRC_DIR_IMAGE] [-o REPORT_FILE]
+              [--reports-dir REPORTS_DIR] [--deep] [--no-universal] [--no-vuln-table] [--threatdb-server THREATDB_SERVER] [--threatdb-username THREATDB_USERNAME] [--threatdb-password THREATDB_PASSWORD] [--threatdb-token THREATDB_TOKEN] [--server]
+              [--server-host SERVER_HOST] [--server-port SERVER_PORT] [--cdxgen-server CDXGEN_SERVER] [--debug] [--explain] [--reachables-slices-file REACHABLES_SLICES_FILE] [-v]
+
+Fully open-source security and license audit for application dependencies and container images based on known vulnerabilities and advisories.
+
+options:
   -h, --help            show this help message and exit
   --no-banner           Do not display banner
   --cache               Cache vulnerability information in platform specific user_data_dir
-  --cache-os            Cache OS vulnerability information in platform specific user_data_dir
+  --csaf                Generate a OASIS CSAF VEX document
   --sync                Sync to receive the latest vulnerability data. Should have invoked cache first.
+  --profile {appsec,research,operational,threat-modeling,license-compliance,generic}
+                        Profile to use while generating the BOM.
+  --no-suggest          Disable suggest mode
   --risk-audit          Perform package risk audit (slow operation). Npm only.
   --private-ns PRIVATE_NS
-                        Private namespace to use while performing oss risk audit. Private packages should not be available in public registries by default. Comma
-                        separated values accepted.
+                        Private namespace to use while performing oss risk audit. Private packages should not be available in public registries by default. Comma separated values accepted.
   -t PROJECT_TYPE, --type PROJECT_TYPE
                         Override project type if auto-detection is incorrect
-  --bom BOM             Examine using the given Software Bill-of-Materials (SBoM) file in CycloneDX format. Use cdxgen command to produce one.
-  -i SRC_DIR, --src SRC_DIR
-                        Source directory
+  --bom BOM             Examine using the given Software Bill-of-Materials (SBOM) file in CycloneDX format. Use cdxgen command to produce one.
+  -i SRC_DIR_IMAGE, --src SRC_DIR_IMAGE
+                        Source directory or container image or binary file
+  -o REPORT_FILE, --report_file REPORT_FILE
+                        DEPRECATED. Use reports directory since multiple files are created. Report filename with directory
   --reports-dir REPORTS_DIR
                         Reports directory
-  --no-error            Continue on error to prevent build from breaking
   --deep                Perform deep scan by passing this --deep argument to cdxgen. Useful while scanning docker images and OS packages.
   --no-universal        Depscan would attempt to perform a single universal scan instead of individual scans per language type.
   --no-vuln-table       Do not print the table with the full list of vulnerabilities. This can help reduce console output.
@@ -183,6 +193,18 @@ usage: depscan [-h] [--no-banner] [--cache] [--cache-os] [--sync] [--suggest] [-
                         ThreatDB password
   --threatdb-token THREATDB_TOKEN
                         ThreatDB token for token based submission
+  --server              Run depscan as a server
+  --server-host SERVER_HOST
+                        depscan server host
+  --server-port SERVER_PORT
+                        depscan server port
+  --cdxgen-server CDXGEN_SERVER
+                        cdxgen server url. Eg: http://cdxgen:9090
+  --debug               Run depscan in debug mode.
+  --explain             Makes depscan to explain the various analysis. Useful for creating detailed reports.
+  --reachables-slices-file REACHABLES_SLICES_FILE
+                        Path for the reachables slices file created by atom.
+  -v, --version         Display the version
 ```
 
 ### Scanning containers locally (Python version)
@@ -190,19 +212,19 @@ usage: depscan [-h] [--no-banner] [--cache] [--cache-os] [--sync] [--suggest] [-
 Scan `latest` tag of the container `shiftleft/scan-slim`
 
 ```bash
-depscan --no-error --cache --src shiftleft/scan-slim -o containertests/depscan-scan.json -t docker
+depscan --cache --src shiftleft/scan-slim -o containertests/depscan-scan.json -t docker
 ```
 
 Include `license` to the type to perform license audit.
 
 ```bash
-depscan --no-error --cache --src shiftleft/scan-slim -o containertests/depscan-scan.json -t docker,license
+depscan --cache --src shiftleft/scan-slim -o containertests/depscan-scan.json -t docker,license
 ```
 
 You can also specify the image using the sha256 digest
 
 ```bash
-depscan --no-error --src redmine@sha256:a5c5f8a64a0d9a436a0a6941bc3fb156be0c89996add834fe33b66ebeed2439e -o containertests/depscan-redmine.json -t docker
+depscan --src redmine@sha256:a5c5f8a64a0d9a436a0a6941bc3fb156be0c89996add834fe33b66ebeed2439e -o containertests/depscan-redmine.json -t docker
 ```
 
 You can also save container images using docker or podman save command and pass the archive to depscan for scanning.
@@ -210,7 +232,7 @@ You can also save container images using docker or podman save command and pass 
 ```bash
 docker save -o /tmp/scanslim.tar shiftleft/scan-slim:latest
 # podman save --format oci-archive -o /tmp/scanslim.tar shiftleft/scan-slim:latest
-depscan --no-error --src /tmp/scanslim.tar -o reports/depscan-scan.json -t docker
+depscan --src /tmp/scanslim.tar -o reports/depscan-scan.json -t docker
 ```
 
 Refer to the docker tests under GitHub action workflow for this repo for more examples.
@@ -278,26 +300,26 @@ The docker image for dep-scan currently doesn't bundle suitable java and maven c
 1. Use python-based execution from a VM containing the correct versions for java, maven and gradle.
 2. Generate the bom file by invoking `cdxgen` command locally and subsequently passing this to `dep-scan` via the `--bom` argument.
 
-## Integration with CI environments
+## Reachability analysis
 
-### Integration with Azure DevOps
+Depscan can perform reachability analysis for Java, JavaScript, TypeScript and Python with built-in support for parsing [atom](https://github.com/AppThreat/atom) reachables slicing. Simply invoke depscan with the `research` profile and language type to enable this feature.
 
-Refer to [this example yaml](https://github.com/AppThreat/WebGoat/blob/develop/azure-pipelines.yml#L33) configuration for integrating dep-scan with Azure Pipelines. The build step would perform the scan and display the report inline as shown below:
+To receive a verbose output including the reachable flows, pass the argument `--explain`
 
-![Azure DevOps integration](assets/images/dep-scan-azure.png)
+```shell
+--profile research -t language [--explain]
+```
 
-### Integration with GitHub Actions
+### Example analysis for a Java project
 
-This tool can be used with GitHub Actions using this [action](https://github.com/marketplace/actions/dep-scan).
+```shell
+depscan --profile research -t java -i <source directory> --reports-dir <reports directory> --explain
+```
 
-This repo self-tests itself with both sast-scan and dep-scan! Check the GitHub [workflow file](https://github.com/AppThreat/dep-scan/blob/master/.github/workflows/pythonapp.yml) of this repo.
+### Example analysis for a JavaScript project
 
-```yaml
-- name: Self dep-scan
-  uses: AppThreat/dep-scan-action@master
-  env:
-    VDB_HOME: ${{ github.workspace }}/db
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```shell
+depscan --profile research -t js -i <source directory> --reports-dir <reports directory> --explain
 ```
 
 ## Customization through environment variables
@@ -400,16 +422,26 @@ The license data is sourced from choosealicense.com and is quite limited. If the
 
 dep-scan could auto-detect most cloud applications and Kubernetes manifest files. Pass the argument `-t yaml-manifest` to manually specify the type.
 
-## Alternatives
+## PDF reports
 
-[Dependency Check](https://github.com/jeremylong/DependencyCheck) is considered the industry standard for open-source dependency scanning. After personally using this great product for many years, I decided to write my own from scratch, partly as a dedication to this project. By using a streaming database based on msgpack and using JSON schema, dep-scan is more performant than dependency check in CI environments. Plus, with support for GitHub advisory source and grafeas report export and submission, dep-scan is on track to become a next-generation dependency audit tool.
-
-Several other tools piggyback on Sonatype [ossindex](https://ossindex.sonatype.org/) API server. For some reason, I always felt uncomfortable letting a commercial company track the usage of various projects worldwide. dep-scan is, therefore, 100% private and guarantees never to perform any tracking!
-
-### Trivy, grype etc
-
-These mature projects are considered the benchmark for container, filesystem and registry scanning. dep-scan is yet to be benchmarked against these projects for results and performance. dep-scan even uses Trivy for container SBoM generation via cdxgen-binary-plugins, although this would change in the future. I aspire to make dep-scan outperform these projects with simplicity and **actionable results**. The CVE insights offered by dep-scan could be used for prioritization to reduce the number of package updates and container rebuilds.
+Ensure [wkhtmltopdf](https://wkhtmltopdf.org/downloads.html) is installed or use the official container image to generate pdf reports. Use with `--explain` for more detailed reports.
 
 ## Discord support
 
 The developers could be reached via the [discord](https://discord.gg/DCNxzaeUpd) channel.
+
+## Media
+
+![Prioritized Results](assets/images/depscan-blog/1.jpg)
+
+![Reachable Flows with Explanation](assets/images/depscan-blog/2.jpg)
+
+![Automatic Tagging](assets/images/depscan-blog/3.jpg)
+
+![Semantic Analysis](assets/images/depscan-blog/4.jpg)
+
+![Polyglot tagging](assets/images/depscan-blog/5.jpg)
+
+![CVE Insights](assets/images/depscan-blog/6.jpg)
+
+![Recommendation](assets/images/depscan-blog/7.jpg)
