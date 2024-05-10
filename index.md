@@ -21,7 +21,7 @@ OWASP dep-scan is a next-generation security and risk audit tool based on known 
 - Perform advanced reachability analysis for multiple languages (See reachability analysis)
 - Package vulnerability scanning is performed locally and is quite fast. No server is used!
 - Generate Software Bill-of-Materials (SBOM) with Vulnerability Disclosure Report (VDR) information
-- Generate a Common Security Advisory Framework (CSAF) 2.0 VEX document (check out the [CSAF Readme](contrib/CSAF_README.md))
+- Generate a Common Security Advisory Framework (CSAF) 2.0 VEX document (check out the [CSAF Readme](https://github.com/owasp-dep-scan/dep-scan/blob/master/contrib/CSAF_README.md))
 - Perform deep packages risk audit for dependency confusion attacks and maintenance risks (See risk audit)
 
 ![Reachable Flows](assets/images/depscan-flows.png)
