@@ -68,27 +68,6 @@ oras pull ghcr.io/appthreat/vdb:v5 -o $VDB_HOME
 oras pull ghcr.io/appthreat/depscan:v4 -o $VDB_HOME
 ```
 
-### Single binary executables
-
-Download the executable binary for your operating system from the [releases page](https://github.com/appthreat/depscan-bin/releases). These binary bundle the following:
-
-- dep-scan with Python 3.10
-- cdxgen with Node.js 18
-- cdxgen binary plugins
-
-```bash
-curl -LO https://github.com/appthreat/depscan-bin/releases/latest/download/depscan-linux-amd64
-chmod +x depscan-linux-amd64
-./depscan-linux-amd64 --help
-```
-
-On Windows,
-
-```powershell
-curl -LO https://github.com/appthreat/depscan-bin/releases/latest/download/depscan.exe
-.\depscan.exe --help
-```
-
 ### Server mode
 
 dep-scan and cdxgen could be run in server mode. Use the included docker compose file to get started.
