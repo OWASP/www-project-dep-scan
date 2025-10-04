@@ -1,0 +1,51 @@
+audience:
+  - breaker
+  - builder
+community:
+  - name: proj-depscan
+    platform: slack
+    url: https://owasp.slack.com/archives/C05U2HKC20G
+    description: 'Discord: <https://discord.gg/pF4BYWEJcS>'
+leaders:
+  - name: Prabhu Subramanian
+    email: prabhu.subramanian@owasp.org
+    github: prabhu
+  - name: Caroline Russell
+    email: caroline.russell@owasp.org
+    github: cerrussell
+  - name: Tim Messing
+    email: tim.messing@owasp.org
+    github: timmyteo
+level: 2
+license:
+  - Apache-2.0
+  - MIT
+name: OWASP dep-scan
+pitch: Next-generation security and risk audit tool based on known vulnerabilities, advisories, and license limitations for project dependencies.
+repositories:
+  - name: www-project-dep-scan
+    url: https://github.com/OWASP/www-project-dep-scan
+    description: OWASP Foundation Web Repository
+  - name: blint
+    url: https://github.com/owasp-dep-scan/blint
+    description: BLint is a Binary Linter to check the security properties, and capabilities in your executables. Since v2, blint is also an SBOM generator
+      for binaries.
+  - name: dep-scan
+    url: https://github.com/owasp-dep-scan/dep-scan
+    description: OWASP dep-scan is a next-generation security and risk audit tool based on known vulnerabilities, advisories, and license limitations for
+      project dependencies. Both local repositories and container images are supported as the input, and the tool is ideal for integration.
+  - name: depscan-bin
+    url: https://github.com/owasp-dep-scan/depscan-bin
+    description: Binary builds for dep-scan - The Dependency Scanner
+  - name: dosai
+    url: https://github.com/owasp-dep-scan/dosai
+    description: Dotnet Source and Assembly Inspector (Dosai) is a tool to list details about the namespaces and methods from sources and assemblies.
+tags:
+  - security-audit
+  - sca
+  - dependency-analysis
+  - risk-audit
+  - sbom
+  - devsecops
+type: tool
+website: https://owasp.org/www-project-dep-scan
